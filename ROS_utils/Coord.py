@@ -2,9 +2,9 @@
 import numpy as np
 
 # import tf2_ros
-import tf.transformations as tf_t
-# from geometry_msgs.msg import Transform, Pose
-# from Utils import *
+# import tf.transformations as tf_t
+from geometry_msgs.msg import Transform, Pose
+from Utils import *
 
 
 class Coord:
@@ -28,9 +28,9 @@ class Coord:
 
             # accept orientation as euler angles or quaternion
             if len(orientation) == 4:
-                M = tf_t.quaternion_matrix( orientation )
+                M = quaternion_matrix( orientation )
             else:
-                M = tf_t.euler_matrix( orientation[0], orientation[1], orientation[2], 'rzyx' )
+                M = euler_matrix( orientation[0], orientation[1], orientation[2], 'rzyx' )
             
             self.T = P.dot(M)
             
@@ -43,7 +43,7 @@ class Coord:
             x,q = search_recursive(inputs[0], [['translation','position'],['rotation','orientation']])
 
             P = translation_matrix( Vector.to_array( x ))
-            M = tf_t.quaternion_matrix( Vector.to_array( q ))
+            M = quaternion_matrix( Vector.to_array( q ))
             
             self.T = P.dot(M)
 
@@ -68,11 +68,10 @@ class Coord:
         return pose
 
     def get_translation(self):
-        _,_,_,x,_ = tf_t.decompose_matrix(self.T)
-        return x
+        return translation_from_matrix(self.T)
 
     def get_orientation(self):
-        return tf_t.quaternion_from_matrix(self.T)
+        return quaternion_from_matrix(self.T)
 
     def __neg__(self):
         return Coord( np.linalg.inv(self.T) )
