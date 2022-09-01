@@ -9,7 +9,7 @@ from Utils import *
 
 class Coord:
     """
-    A handy class to do coordinate arithmetic with. Usefully converts poses, transforms, and matrices. Only works in python2 due to dependence on tf.transformations
+    A handy class to do coordinate arithmetic with. Usefully converts poses, transforms, and matrices.
     """
 
     # I = Coord(np.eye(4)) # the identity coordinate
