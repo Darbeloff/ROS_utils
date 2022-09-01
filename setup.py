@@ -17,7 +17,7 @@ setuptools.setup(
     },
     license='MIT',
     packages=['ROS_utils'],
-    install_requires=['rospy', 'numpy', 'tf2_ros', 'tf.transformations'], # TODO: double check this is how requirements work, and that these are the correct package names.
+    install_requires=['rospy', 'numpy'],
 
     test_suit='nose.collector',
     tests_require=['nose', 'rospy', 'numpy']
