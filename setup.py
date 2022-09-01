@@ -17,8 +17,8 @@ setuptools.setup(
     },
     license='MIT',
     packages=['ROS_utils'],
-    install_requires=['rospy', 'numpy'],
+    install_requires=['numpy'],
 
     test_suit='nose.collector',
-    tests_require=['nose', 'rospy', 'numpy']
+    tests_require=['nose', 'numpy']
 )
