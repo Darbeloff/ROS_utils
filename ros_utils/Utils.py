@@ -66,16 +66,13 @@ def await_condition(condition, timeout=60, on_condition=lambda: 0, on_timeout=la
     return on_timeout()
 
 def quaternion_from_matrix(T):
-    M = T[:3,:3]
-
-    Qxx, Qyx, Qzx, Qxy, Qyy, Qzy, Qxz, Qyz, Qzz = M.flat
+    
+    Qxx, Qyx, Qzx, Qxy, Qyy, Qzy, Qxz, Qyz, Qzz = T[:3,:3].flat
     # Fill only lower half of symmetric matrix
-    K = np.array([
-        [Qxx - Qyy - Qzz, 0,               0,               0              ],
-        [Qyx + Qxy,       Qyy - Qxx - Qzz, 0,               0              ],
-        [Qzx + Qxz,       Qzy + Qyz,       Qzz - Qxx - Qyy, 0              ],
-        [Qyz - Qzy,       Qzx - Qxz,       Qxy - Qyx,       Qxx + Qyy + Qzz]]
-        ) / 3.0
+    K = np.array([[Qxx - Qyy - Qzz, 0,               0,               0              ],
+                  [Qyx + Qxy,       Qyy - Qxx - Qzz, 0,               0              ],
+                  [Qzx + Qxz,       Qzy + Qyz,       Qzz - Qxx - Qyy, 0              ],
+                  [Qyz - Qzy,       Qzx - Qxz,       Qxy - Qyx,       Qxx + Qyy + Qzz]]) / 3.0
     # Use Hermitian eigenvectors, values for speed
     vals, vecs = np.linalg.eigh(K)
     # Select largest eigenvector, reorder to w,x,y,z quaternion
@@ -115,7 +112,6 @@ def quaternion_matrix(q):
                                  [  xz-wy,  yz+wx, -xx-yy ]])
 
     return T
-
 
 def euler_matrix(euler):
     R = quaternion_matrix( quaternion_around_axis(euler[0], [1,0,0]) )
