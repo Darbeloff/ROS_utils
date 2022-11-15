@@ -2,15 +2,14 @@
 import numpy as np
 
 # import tf2_ros
-import tf.transformations as tf_t
-# from geometry_msgs.msg import Transform, Pose
-# from Utils import *
-import Vector
+# import tf.transformations as tf_t
+from geometry_msgs.msg import Transform, Pose
+from Utils import *
 
 
 class Coord:
     """
-    A handy class to do coordinate arithmetic with. Usefully converts poses, transforms, and matrices. Only works in python2 due to dependence on tf.transformations
+    A handy class to do coordinate arithmetic with. Usefully converts poses, transforms, and matrices.
     """
 
     # I = Coord(np.eye(4)) # the identity coordinate
@@ -29,9 +28,9 @@ class Coord:
 
             # accept orientation as euler angles or quaternion
             if len(orientation) == 4:
-                M = tf_t.quaternion_matrix( orientation )
+                M = quaternion_matrix( orientation )
             else:
-                M = tf_t.euler_matrix( orientation[0], orientation[1], orientation[2], 'rzyx' )
+                M = euler_matrix( orientation[0], orientation[1], orientation[2], 'rzyx' )
             
             self.T = P.dot(M)
             
@@ -44,7 +43,7 @@ class Coord:
             x,q = search_recursive(inputs[0], [['translation','position'],['rotation','orientation']])
 
             P = translation_matrix( Vector.to_array( x ))
-            M = tf_t.quaternion_matrix( Vector.to_array( q ))
+            M = quaternion_matrix( Vector.to_array( q ))
             
             self.T = P.dot(M)
 
@@ -69,11 +68,10 @@ class Coord:
         return pose
 
     def get_translation(self):
-        _,_,_,x,_ = tf_t.decompose_matrix(self.T)
-        return x
+        return translation_from_matrix(self.T)
 
     def get_orientation(self):
-        return tf_t.quaternion_from_matrix(self.T)
+        return quaternion_from_matrix(self.T)
 
     def __neg__(self):
         return Coord( np.linalg.inv(self.T) )
@@ -103,75 +101,3 @@ class Coord:
 
     def __repr__(self):
         return self.T.__str__()
-
-
-def quaternion_from_matrix(T):
-    pass
-
-def translation_from_matrix(T):
-    pass
-
-def translation_matrix(x):
-    T = np.eye(4)    
-    T[0:3,3] = x
-
-    return T
-
-def quaternion_matrix(q):
-    # Quaternion is in form .wxyz
-
-    T = np.eye(4)
-
-    # Extract the values from Q
-    w, x, y, z = q
-
-    wx,wy,wz, xx,xy,xz = np.ravel( np.matmul( [[w],[x]], [[x,y,z]] ) )
-    yy,yz = y* np.array([y,z])
-    zz = z*z
-    
-    s = 2./(w*w + xx + yy + zz)
-
-    T[0:3,0:3] += s * np.array([[ -yy-zz,  xy-wz,  xz+wy ],
-                                [  xy+wz, -xx-zz,  yz-wx ],
-                                [  xz-wy,  yz+wx, -xx+yy ]])
-
-    return T
-
-
-
-def euler_matrix(euler):
-    R = quaternion_matrix( quaternion_around_axis(euler[0], [1,0,0]) )
-    # print(type(R))
-    P = quaternion_matrix( quaternion_around_axis(euler[1], [0,1,0]) )
-    Y = quaternion_matrix( quaternion_around_axis(euler[2], [0,0,1]) )
-
-    return Y.dot(P).dot(R)
-
-def quaternion_around_axis(theta, axis):
-    ''' Quaternion for rotation of angle `theta` around axis `axis`
-    Formula from http://mathworld.wolfram.com/EulerParameters.html
-    '''
-
-
-    axis = np.array(axis)/np.linalg.norm(axis)
-    t2 = theta / 2.
-
-    q = np.zeros(4)
-
-    q[0] = np.cos(t2)
-    q[1:4] = np.sin(t2) * axis
-
-    return q
-
-
-
-
-theta = 234.0
-axis = [342.1234, 43.2, -123.]
-axis = np.array(axis)/np.linalg.norm(axis)
-
-q1 = quaternion_around_axis(theta, axis)
-q2 = tf_t.quaternion_about_axis(theta, axis)
-
-print(q1[0] == q2[3])
-print(q1[1:4] == q2[0:3])
