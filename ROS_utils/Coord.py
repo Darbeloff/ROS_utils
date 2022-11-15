@@ -5,6 +5,7 @@ import numpy as np
 import tf.transformations as tf_t
 # from geometry_msgs.msg import Transform, Pose
 # from Utils import *
+import Vector
 
 
 class Coord:
